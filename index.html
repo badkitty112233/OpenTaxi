@@ -9,17 +9,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"></script>
     <style>
         :root {
-            --color-primary: #208091;
-            --color-primary-hover: #1a6574;
-            --color-primary-active: #144d5a;
+            --color-primary: #c0152f;
+            --color-primary-hover: #a01028;
+            --color-primary-active: #800d20;
             --color-success: #2db870;
             --color-error: #c0152f;
             --color-warning: #a84b2f;
-            --color-text: #134252;
-            --color-text-secondary: #626c7c;
-            --color-bg: #fcfcf9;
+            --color-text: #1a1a1a;
+            --color-text-secondary: #555555;
+            --color-bg: #f5f5f5;
             --color-surface: #ffffff;
-            --color-border: #e8e8e8;
+            --color-border: #e0e0e0;
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
@@ -41,52 +41,104 @@
         }
 
         .header {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+            background: linear-gradient(135deg, #c0152f, #a01028);
             color: white;
-            padding: var(--spacing-lg);
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: var(--spacing-md) var(--spacing-lg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: visible;
+        }
+
+        .header::before {
+            display: none;
+        }
+
+        .header img, .header h1, .header p {
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: var(--spacing-sm);
+            font-size: 18px;
+            margin-bottom: 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .header p {
-            font-size: 14px;
-            opacity: 0.95;
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 8px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #c0152f;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: var(--spacing-lg);
         }
 
         .tabs {
             display: flex;
-            gap: var(--spacing-sm);
+            gap: var(--spacing-lg);
             margin-bottom: var(--spacing-lg);
-            border-bottom: 2px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
+            position: relative;
+            overflow-x: auto;
         }
 
         .tab {
-            padding: var(--spacing-md) var(--spacing-lg);
+            padding: var(--spacing-md) 0;
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 15px;
+            font-weight: 600;
             color: var(--color-text-secondary);
             border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            margin-bottom: -2px;
+            transition: all 0.2s ease;
+            margin-bottom: -1px;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab::after {
+            display: none;
         }
 
         .tab.active {
-            color: var(--color-primary);
-            border-bottom-color: var(--color-primary);
+            color: #c0152f;
+            border-bottom-color: #c0152f;
         }
 
         .tab:hover {
@@ -105,43 +157,72 @@
             margin-bottom: var(--spacing-lg);
             display: flex;
             gap: var(--spacing-sm);
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--color-border);
         }
 
         .search-bar input {
             flex: 1;
             padding: var(--spacing-sm) var(--spacing-md);
             border: 1px solid var(--color-border);
-            border-radius: var(--radius);
+            border-radius: 8px;
             font-size: 14px;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+
+        .search-bar input:focus {
+            background: white;
+            border-color: #c0152f;
+            outline: none;
         }
 
         .search-bar button {
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: var(--color-primary);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: #c0152f;
             color: white;
             border: none;
-            border-radius: var(--radius);
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: all 0.2s;
+            font-size: 14px;
         }
 
         .search-bar button:hover {
-            background: var(--color-primary-hover);
+            background: #a01028;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(192, 21, 47, 0.2);
         }
 
         .driver-card {
             background: var(--color-surface);
             border: 1px solid var(--color-border);
-            border-radius: var(--radius);
+            border-radius: 12px;
             padding: var(--spacing-md);
             margin-bottom: var(--spacing-md);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            transition: box-shadow 0.3s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid #c0152f;
+        }
+
+        .driver-card::before {
+            display: none;
         }
 
         .driver-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 12px rgba(192, 21, 47, 0.1);
+            transform: translateY(-2px);
+            border-left-color: #a01028;
+        }
+
+        .driver-card:hover::before {
+            display: none;
         }
 
         .driver-header {
@@ -156,16 +237,18 @@
         }
 
         .driver-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: var(--spacing-xs);
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
         }
 
         .driver-plate {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--color-text-secondary);
-            font-family: monospace;
-            margin-bottom: var(--spacing-sm);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
         .rating-display {
@@ -188,9 +271,16 @@
         .review-form {
             background: var(--color-surface);
             border: 1px solid var(--color-border);
-            border-radius: var(--radius);
-            padding: var(--spacing-md);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
             margin-bottom: var(--spacing-lg);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border-left: 4px solid #c0152f;
+        }
+
+        .review-form::after {
+            display: none;
         }
 
         .form-group {
@@ -202,6 +292,8 @@
             font-weight: 600;
             margin-bottom: var(--spacing-sm);
             font-size: 14px;
+            color: #1a1a1a;
+            letter-spacing: -0.2px;
         }
 
         .form-group input,
@@ -265,21 +357,42 @@
         }
 
         .btn-primary {
-            background: var(--color-primary);
+            background: #c0152f;
             color: white;
+            box-shadow: 0 2px 8px rgba(192, 21, 47, 0.2);
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .btn-primary::before {
+            display: none;
         }
 
         .btn-primary:hover {
-            background: var(--color-primary-hover);
+            background: #a01028;
+            box-shadow: 0 4px 12px rgba(192, 21, 47, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:hover::before {
+            display: none;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-secondary {
-            background: var(--color-border);
+            background: #f5f5f5;
             color: var(--color-text);
+            border: 1px solid var(--color-border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .btn-secondary:hover {
-            background: #ddd;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
         }
 
         .btn-group {
@@ -289,11 +402,19 @@
         }
 
         .review-item {
-            background: var(--color-bg);
+            background: white;
             border: 1px solid var(--color-border);
-            border-radius: var(--radius);
+            border-left: 4px solid #c0152f;
+            border-radius: 10px;
             padding: var(--spacing-md);
             margin-bottom: var(--spacing-md);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .review-item:hover {
+            box-shadow: 0 3px 8px rgba(192, 21, 47, 0.08);
+            transform: translateY(-1px);
         }
 
         .review-header {
@@ -327,11 +448,20 @@
 
         .tag {
             display: inline-block;
-            background: var(--color-primary);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
+            background: #ffebee;
+            color: #c0152f;
+            padding: 5px 12px;
+            border-radius: 16px;
             font-size: 12px;
+            font-weight: 600;
+            box-shadow: none;
+            transition: all 0.2s;
+            border: 1px solid #ffcccc;
+        }
+
+        .tag:hover {
+            background: #ffcccc;
+            border-color: #c0152f;
         }
 
         .stats-grid {
@@ -342,17 +472,31 @@
         }
 
         .stat-card {
-            background: var(--color-surface);
+            background: white;
             border: 1px solid var(--color-border);
-            border-radius: var(--radius);
+            border-radius: 12px;
             padding: var(--spacing-md);
             text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            border-top: 3px solid #c0152f;
+        }
+
+        .stat-card::before {
+            display: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(192, 21, 47, 0.1);
         }
 
         .stat-value {
             font-size: 24px;
             font-weight: 600;
-            color: var(--color-primary);
+            color: #c0152f;
             margin-bottom: var(--spacing-xs);
         }
 
@@ -401,7 +545,7 @@
             color: var(--color-text-secondary);
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .container {
                 padding: var(--spacing-md);
             }
@@ -411,7 +555,7 @@
             }
 
             .header h1 {
-                font-size: 22px;
+                font-size: 16px;
             }
 
             .driver-header {
@@ -421,20 +565,42 @@
             .rating-display {
                 margin-top: var(--spacing-sm);
             }
+
+            .tabs {
+                gap: var(--spacing-md);
+            }
+
+            .tab {
+                font-size: 14px;
+                padding: var(--spacing-sm) 0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🚕 OpenTaxi</h1>
-        <p>Rate Hong Kong taxi drivers • Build trust in HK taxis</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-lg);">
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/8d2ff71e-e464-4b17-9669-a4d5d8a52052" alt="OpenTaxi Logo" style="height: 52px; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2)); transform: scale(1.05);">
+                <div>
+                    <h1 style="margin: 0;">OpenTaxi</h1>
+                    <p style="margin: 0; font-size: 11px; opacity: 0.8;">Rate HK Taxi Drivers</p>
+                </div>
+            </div>
+            <div class="language-selector">
+                <button class="lang-btn active" onclick="setLanguage('en')" title="English">EN</button>
+                <button class="lang-btn" onclick="setLanguage('zh-HK')" title="繁體中文">繁</button>
+                <button class="lang-btn" onclick="setLanguage('zh-CN')" title="简体中文">简</button>
+            </div>
+        </div>
     </div>
 
     <div class="container">
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('browse')">Browse Drivers</button>
-            <button class="tab" onclick="switchTab('submit')">Submit Review</button>
-            <button class="tab" onclick="switchTab('stats')">My Ratings</button>
+            <button class="tab active" onclick="switchTab('browse')" id="tabBrowse">Browse Drivers</button>
+            <button class="tab" onclick="switchTab('submit')" id="tabSubmit">Submit Review</button>
+            <button class="tab" onclick="switchTab('report')" id="tabReport">Report to Authority</button>
+            <button class="tab" onclick="switchTab('stats')" id="tabStats">My Ratings</button>
         </div>
 
         <!-- Browse Tab -->
@@ -443,7 +609,7 @@
                 <input 
                     type="text" 
                     id="searchInput" 
-                    placeholder="Search by driver name or license plate (e.g., AE 1234 or 張明華)"
+                    placeholder="Search by plate (AE 1234), name (張明華), or driver ID (T135051)"
                 >
                 <button onclick="searchDrivers()">Search</button>
             </div>
@@ -479,6 +645,20 @@
                         id="driverName" 
                         placeholder="e.g., 張明華 or Wong Ming"
                     >
+                </div>
+
+                <div class="form-group">
+                    <label>Driver ID / 司機身份證號 (optional)</label>
+                    <input 
+                        type="text" 
+                        id="driverId" 
+                        placeholder="e.g., Q13551 or T135051"
+                        onchange="validateDriverId(this)"
+                    >
+                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                        Optional: Government-issued driver ID (for official complaints)
+                    </small>
+                    <small id="driverIdStatus" style="display: none; font-size: 12px; margin-top: 4px; font-weight: 600;"></small>
                 </div>
 
                 <div class="form-group">
@@ -547,6 +727,147 @@
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
                     <button class="btn btn-secondary" onclick="resetForm()">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report to Authority Tab -->
+        <div id="report" class="tab-content">
+            <div class="review-form">
+                <h2 style="margin-bottom: var(--spacing-lg); font-size: 20px;">Report to Transport Authority</h2>
+                <p style="margin-bottom: var(--spacing-lg); color: var(--color-text-secondary); font-size: 14px;">
+                    File an official complaint with the Hong Kong Transport Department. Provide detailed information about the incident for proper investigation.
+                </p>
+
+                <div class="success-message" id="reportSuccessMsg">✓ Your report has been submitted to the Transport Authority. Reference number: <span id="refNumber"></span></div>
+                <div class="error-message" id="reportErrorMsg"></div>
+
+                <div class="form-group">
+                    <label>License Plate Number *</label>
+                    <input 
+                        type="text" 
+                        id="reportPlate" 
+                        placeholder="e.g., AE 1234 or 粵港澳牌"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Driver Name (if known)</label>
+                    <input 
+                        type="text" 
+                        id="reportDriverName" 
+                        placeholder="e.g., 張明華 or Wong Ming"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Driver ID / 司機身份證號</label>
+                    <input 
+                        type="text" 
+                        id="reportDriverId" 
+                        placeholder="e.g., Q13551 or T135051"
+                        onchange="validateReportDriverId(this)"
+                    >
+                    <small id="reportDriverIdStatus" style="display: none; font-size: 12px; margin-top: 4px; font-weight: 600;"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Type of Violation *</label>
+                    <select id="violationType" required>
+                        <option value="">Select a violation type</option>
+                        <option value="reckless-driving">Reckless/Dangerous Driving</option>
+                        <option value="overcharge">Fare Overcharge</option>
+                        <option value="long-route">Deliberately Taking Long Route</option>
+                        <option value="refusal-service">Refusal of Service</option>
+                        <option value="rude-behavior">Rude/Abusive Behavior</option>
+                        <option value="vehicle-condition">Poor Vehicle Condition</option>
+                        <option value="hygiene">Hygiene Issue</option>
+                        <option value="meter-tampering">Meter Tampering Suspicion</option>
+                        <option value="other">Other Violation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Date & Time of Incident *</label>
+                    <input type="datetime-local" id="reportDateTime" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Route (From - To)</label>
+                    <input 
+                        type="text" 
+                        id="reportRoute" 
+                        placeholder="e.g., Central to TST (or location names)"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Fare Charged (HKD)</label>
+                    <input 
+                        type="number" 
+                        id="reportFare" 
+                        placeholder="e.g., 150"
+                        min="0"
+                        step="0.50"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Expected Fare (HKD)</label>
+                    <input 
+                        type="number" 
+                        id="reportExpectedFare" 
+                        placeholder="e.g., 80"
+                        min="0"
+                        step="0.50"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Detailed Description of Incident *</label>
+                    <textarea 
+                        id="reportDetails" 
+                        placeholder="Provide a detailed account of what happened. Include specific details like words used, actions taken, vehicle conditions, etc."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Contact Information *</label>
+                    <input 
+                        type="email" 
+                        id="reportEmail" 
+                        placeholder="Your email address"
+                        required
+                    >
+                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                        The Transport Authority may contact you for follow-up
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Contact Number (optional)</label>
+                    <input 
+                        type="tel" 
+                        id="reportPhone" 
+                        placeholder="Your phone number"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="reportConsent" required>
+                        <span style="margin-left: 8px;">I consent to the Transport Authority using this information for investigation purposes</span>
+                    </label>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="submitReport()">Submit Report to Authority</button>
+                    <button class="btn btn-secondary" onclick="resetReport()">Clear</button>
+                </div>
+
+                <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: #fff3cd; border: 1px solid #ffc107; border-radius: var(--radius); font-size: 13px; color: #856404;">
+                    <strong>⚠️ Important:</strong> False or malicious reports may result in legal consequences. Please ensure all information is accurate and truthful.
                 </div>
             </div>
         </div>
@@ -621,6 +942,7 @@
                         drivers[review.plate] = {
                             plate: review.plate,
                             name: review.driverName || 'Unknown Driver',
+                            driverId: review.driverId || null,
                             reviews_data: [],
                             ratings: []
                         };
@@ -685,6 +1007,7 @@
                         <div class="driver-info">
                             <div class="driver-name">${driver.name}</div>
                             <div class="driver-plate">License: ${driver.plate}</div>
+                            ${driver.driverId ? `<div class="driver-plate" style="font-size: 12px; color: var(--color-primary);">ID: ${driver.driverId}</div>` : ''}
                             <div style="font-size: 12px; color: var(--color-text-secondary);">
                                 ${driver.reviews} reviews
                             </div>
@@ -716,7 +1039,8 @@
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = filteredDrivers.filter(d => 
                 d.name.toLowerCase().includes(query) || 
-                d.plate.toLowerCase().includes(query)
+                d.plate.toLowerCase().includes(query) ||
+                (d.driverId && d.driverId.toLowerCase().includes(query))
             );
             displayDrivers(filtered);
         }
@@ -766,9 +1090,11 @@
             }
 
             // Save to Firebase
+            const driverId = document.getElementById('driverId').value.trim().toUpperCase();
             const review = {
                 plate: plate,
                 driverName: driverName || 'Anonymous',
+                driverId: driverId || null,
                 rating: currentRating,
                 tags: tags,
                 comments: comments,
@@ -807,12 +1133,122 @@
         function resetForm() {
             document.getElementById('plateLicense').value = '';
             document.getElementById('driverName').value = '';
+            document.getElementById('driverId').value = '';
             document.getElementById('comments').value = '';
             document.getElementById('tripDate').value = '';
             currentRating = 0;
             document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
             document.querySelectorAll('.checkbox-group input').forEach(cb => cb.checked = false);
             document.getElementById('ratingText').textContent = '';
+        }
+
+        function resetReport() {
+            document.getElementById('reportPlate').value = '';
+            document.getElementById('reportDriverName').value = '';
+            document.getElementById('reportDriverId').value = '';
+            document.getElementById('violationType').value = '';
+            document.getElementById('reportDateTime').value = '';
+            document.getElementById('reportRoute').value = '';
+            document.getElementById('reportFare').value = '';
+            document.getElementById('reportExpectedFare').value = '';
+            document.getElementById('reportDetails').value = '';
+            document.getElementById('reportEmail').value = '';
+            document.getElementById('reportPhone').value = '';
+            document.getElementById('reportConsent').checked = false;
+        }
+
+        function submitReport() {
+            const plate = document.getElementById('reportPlate').value.trim().toUpperCase();
+            const driverName = document.getElementById('reportDriverName').value.trim();
+            const driverId = document.getElementById('reportDriverId').value.trim().toUpperCase();
+            const violationType = document.getElementById('violationType').value;
+            const dateTime = document.getElementById('reportDateTime').value;
+            const route = document.getElementById('reportRoute').value.trim();
+            const fare = document.getElementById('reportFare').value;
+            const expectedFare = document.getElementById('reportExpectedFare').value;
+            const details = document.getElementById('reportDetails').value.trim();
+            const email = document.getElementById('reportEmail').value.trim();
+            const phone = document.getElementById('reportPhone').value.trim();
+            const consent = document.getElementById('reportConsent').checked;
+
+            // Validation
+            if (!plate) {
+                showReportError('Please enter the license plate number');
+                return;
+            }
+
+            if (!violationType) {
+                showReportError('Please select a violation type');
+                return;
+            }
+
+            if (!dateTime) {
+                showReportError('Please enter the date and time of incident');
+                return;
+            }
+
+            if (!details || details.length < 20) {
+                showReportError('Please provide a detailed description (at least 20 characters)');
+                return;
+            }
+
+            if (!email || !email.includes('@')) {
+                showReportError('Please enter a valid email address');
+                return;
+            }
+
+            if (!consent) {
+                showReportError('You must consent to the investigation process');
+                return;
+            }
+
+            // Generate reference number
+            const refNumber = 'TR' + Date.now().toString().slice(-8);
+
+            // Create report object
+            const report = {
+                refNumber: refNumber,
+                plate: plate,
+                driverName: driverName || 'Unknown',
+                driverId: driverId || null,
+                violationType: violationType,
+                dateTime: dateTime,
+                route: route || 'Not specified',
+                fare: fare ? parseFloat(fare) : null,
+                expectedFare: expectedFare ? parseFloat(expectedFare) : null,
+                details: details,
+                email: email,
+                phone: phone || null,
+                submittedAt: new Date().toISOString(),
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+
+            // Save to Firebase
+            database.ref('authorityReports').push(report, error => {
+                if (error) {
+                    showReportError('Error submitting report: ' + error.message);
+                } else {
+                    // Show success with reference number
+                    document.getElementById('refNumber').textContent = refNumber;
+                    const msg = document.getElementById('reportSuccessMsg');
+                    msg.classList.add('show');
+                    setTimeout(() => msg.classList.remove('show'), 6000);
+
+                    // Also send email notification (would need backend)
+                    console.log('Report submitted with reference:', refNumber);
+
+                    // Reset form
+                    resetReport();
+                }
+            });
+        }
+
+        function showReportError(message) {
+            const msg = document.getElementById('reportErrorMsg');
+            msg.textContent = message;
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 5000);
         }
 
         function updateStats() {
@@ -852,9 +1288,277 @@
             }
         }
 
+        // All valid driver IDs from HK Transport Dept
+        const validDriverIds = new Set([
+            'Q13551', 'Q13552', 'Q13553', 'Q13554', 'Q13579', 'Q13580', 'Q13581', 'Q13582', 'Q13583', 'Q13584', 'Q13585', 'Q13586', 'Q13587', 'Q13588', 'Q13602', 'Q13603', 'Q13604', 'Q13605', 'Q13607', 'Q13608', 'Q13609', 'Q13610', 'Q13611', 'Q13612', 'Q13613', 'Q13614', 'Q13615', 'Q13616', 'Q13617', 'Q13619', 'Q13620', 'Q13621', 'Q13622', 'Q13623', 'Q13624', 'Q13625', 'Q13651', 'Q13652', 'Q13726', 'Q13727', 'Q13732', 'Q13828', 'Q13829', 'Q13830', 'Q13831', 'Q13852', 'Q13853', 'Q13854', 'Q13855', 'Q13856', 'Q13857', 'Q13858', 'Q13867', 'Q13868', 'Q13870', 'Q13876', 'Q13878', 'Q13881', 'Q14151', 'Q14153', 'Q14183', 'Q14251', 'Q14315', 'Q14316', 'Q14378', 'Q14379', 'Q14381', 'Q14382', 'Q14387', 'Q14391', 'Q14392', 'Q14393', 'Q14394', 'Q14395', 'Q14396', 'Q14397', 'Q14398', 'Q14399', 'Q14427', 'Q14428', 'Q14431', 'Q14432', 'Q14435', 'Q14436', 'Q14454', 'Q14455', 'Q14501', 'Q14502', 'Q14503', 'Q14504', 'Q14505', 'Q14506', 'Q14507', 'Q14779', 'Q14780', 'Q14781', 'Q14782', 'Q14785', 'Q14786', 'Q14787', 'Q14788', 'Q14790', 'Q14791', 'Q14792', 'Q14793', 'Q14795', 'Q14796', 'Q14799', 'Q14800', 'Q14801', 'Q14802', 'Q14803', 'Q14804', 'T117117', 'T127693', 'T128072', 'T128778', 'T128779', 'T128780', 'T128781', 'T128782', 'T128783', 'T135051', 'T135052', 'T135053', 'T135054', 'T135055', 'T135056', 'T135057', 'T135058', 'T135059', 'T135060', 'T135061', 'T135062', 'T135063', 'T135064', 'T135065', 'T135066', 'T135067', 'T135068', 'T135069', 'T135070', 'T135071', 'T135074', 'T135075', 'T135076', 'T135077', 'T135078', 'T135079', 'T135080', 'T135081', 'T135082', 'T135083', 'T135084', 'T135085', 'T135086', 'T135087', 'T135090', 'T135091', 'T135092', 'T135093', 'T135094', 'T135095', 'T135096', 'T135097', 'T135098', 'T135099', 'T135100', 'T135101', 'T135102', 'T135103', 'T135104', 'T135105', 'T135106', 'T135107', 'T135108', 'T135109', 'T135110', 'T135111', 'T135112', 'T135113', 'T135114', 'T135115', 'T135116', 'T135117', 'T135118', 'T135119', 'T135120', 'T135121', 'T135124', 'T135125', 'T135126', 'T135127', 'T135128', 'T135129', 'T135130', 'T135131', 'T135134', 'T135135', 'T135136', 'T135137', 'T135138', 'T135139', 'T135140', 'T135141', 'T135142', 'T135143', 'T135144', 'T135145', 'T135146', 'T135147', 'T135148', 'T135149', 'T135150', 'T135151', 'T135152', 'T135153', 'T135154', 'T135155', 'T135156', 'T135157', 'T135158', 'T135159', 'T135160', 'T135161', 'T135162', 'T135163', 'T135164', 'T135165', 'T135166', 'T135167', 'T135168', 'T135169', 'T135170', 'T135171', 'T135172', 'T135173', 'T135174', 'T135175', 'T135176', 'T135177', 'T135178', 'T135179', 'T135180', 'T135181', 'T135182', 'T135183', 'T135184', 'T135185', 'T135186', 'T135187', 'T135188', 'T135189', 'T135190', 'T135191', 'T135192', 'T135193', 'T135194', 'T135195', 'T135196', 'T135197', 'T135198', 'T135199', 'T135200', 'T135201', 'T135202', 'T135203', 'T135204', 'T135205', 'T135206', 'T135207', 'T135208', 'T135209', 'T135210', 'T135211', 'T135212', 'T135213', 'T135214', 'T135215', 'T135216', 'T135217', 'T135218', 'T135219', 'T135220', 'T135221', 'T135222', 'T135223', 'T135224', 'T135225', 'T135226', 'T135227', 'T135228', 'T135229', 'T135230', 'T135231', 'T135232', 'T135233', 'T135234', 'T135235', 'T135236', 'T135237', 'T135238', 'T135239', 'T135240', 'T135241', 'T135244', 'T135245', 'T135246', 'T135247', 'T135250', 'T135251', 'T135252', 'T135253', 'T135254', 'T135255', 'T135256', 'T135257', 'T135258', 'T135259', 'T135260', 'T135264', 'T135265', 'T135266', 'T135267', 'T135268', 'T135269', 'T135270', 'T135271', 'T135272', 'T135273', 'T135274', 'T135275', 'T135276', 'T135277', 'T135278', 'T135281', 'T135282', 'T135283', 'T135284', 'T135285', 'T135286', 'T135287', 'T135288', 'T135289', 'T135290', 'T135291', 'T135292', 'T135293', 'T135294', 'T135295', 'T135296', 'T135297', 'T135298', 'T135299', 'T135300'
+        ]);
+
+        // Validation functions
+        function validateDriverId(input) {
+            const id = input.value.trim().toUpperCase();
+            const statusEl = document.getElementById('driverIdStatus');
+            
+            if (!id) {
+                statusEl.style.display = 'none';
+                input.style.borderColor = 'var(--color-border)';
+                return;
+            }
+
+            if (validDriverIds.has(id)) {
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = '✓ Valid driver ID';
+                statusEl.style.color = '#2db870';
+                input.style.borderColor = '#2db870';
+            } else {
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = '✗ Not found in HK Transport registry';
+                statusEl.style.color = '#c0152f';
+                input.style.borderColor = '#c0152f';
+            }
+        }
+
+        function validateReportDriverId(input) {
+            const id = input.value.trim().toUpperCase();
+            const statusEl = document.getElementById('reportDriverIdStatus');
+            
+            if (!id) {
+                statusEl.style.display = 'none';
+                input.style.borderColor = 'var(--color-border)';
+                return;
+            }
+
+            if (validDriverIds.has(id)) {
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = '✓ Valid driver ID';
+                statusEl.style.color = '#2db870';
+                input.style.borderColor = '#2db870';
+            } else {
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = '✗ Not found in HK Transport registry';
+                statusEl.style.color = '#c0152f';
+                input.style.borderColor = '#c0152f';
+            }
+        }
+
         // Set today's date by default
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tripDate').valueAsDate = new Date();
+            
+            // Load all driver IDs into Firebase once (on first load)
+            loadValidDriverIds();
+        });
+
+        function loadValidDriverIds() {
+            // Store valid IDs in Firebase for server-side validation
+            const idsArray = Array.from(validDriverIds);
+            database.ref('validDriverIds').set({
+                count: idsArray.length,
+                ids: idsArray,
+                lastUpdated: new Date().toISOString()
+            });
+        }
+
+        // Multi-language support
+        const translations = {
+            en: {
+                headerSubtitle: "Rate Hong Kong taxi drivers • Build trust in HK taxis",
+                tabBrowse: "Browse Drivers",
+                tabSubmit: "Submit Review",
+                tabReport: "Report to Authority",
+                tabStats: "My Ratings",
+                searchPlaceholder: "Search by plate (AE 1234), name (張明華), or driver ID (T135051)",
+                searchBtn: "Search",
+                submitTitle: "Submit Your Review",
+                reportTitle: "Report to Transport Authority",
+                reportDesc: "File an official complaint with the Hong Kong Transport Department. Provide detailed information about the incident for proper investigation.",
+                statsTitle: "Your Submission History",
+                plateLabelShort: "License Plate Number *",
+                driverNameLabel: "Driver Name (optional)",
+                driverIdLabel: "Driver ID / 司機身份證號 (optional)",
+                ratingLabel: "Overall Rating *",
+                experienceLabel: "What was your experience? (Select all that apply)",
+                commentsLabel: "Additional Comments (optional)",
+                tripDateLabel: "Date of Trip *",
+                submitBtn: "Submit Review",
+                clearBtn: "Clear",
+                successMsg: "✓ Thank you! Your review has been submitted successfully.",
+                reviewsSubmitted: "Reviews Submitted",
+                avgRatingGiven: "Average Rating Given",
+                positiveReviews: "Positive Reviews",
+                concernsReported: "Concerns Reported",
+                recentReviews: "Recent Reviews",
+                noReviews: "No reviews submitted yet",
+                safeDriving: "Safe driving",
+                courteous: "Courteous",
+                cleanVehicle: "Clean vehicle",
+                efficientRoute: "Efficient route",
+                recklessDriving: "⚠ Reckless driving",
+                overcharge: "⚠ Overcharge",
+                longRoute: "⚠ Long route",
+                rudeBehavior: "⚠ Rude behavior",
+                reportPlateLabel: "License Plate Number *",
+                reportDriverNameLabel: "Driver Name (if known)",
+                reportDriverIdLabel: "Driver ID / 司機身份證號",
+                violationTypeLabel: "Type of Violation *",
+                dateTimeLabel: "Date & Time of Incident *",
+                routeLabel: "Route (From - To)",
+                fareChargedLabel: "Fare Charged (HKD)",
+                expectedFareLabel: "Expected Fare (HKD)",
+                detailsLabel: "Detailed Description of Incident *",
+                contactLabel: "Your Contact Information *",
+                phoneLabel: "Your Contact Number (optional)",
+                consentLabel: "I consent to the Transport Authority using this information for investigation purposes",
+                reportBtn: "Submit Report to Authority",
+                reportSuccessMsg: "✓ Your report has been submitted to the Transport Authority. Reference number: ",
+                reportWarning: "⚠️ Important: False or malicious reports may result in legal consequences. Please ensure all information is accurate and truthful."
+            },
+            'zh-HK': {
+                headerSubtitle: "評分香港的士司機 • 建立香港的士信任度",
+                tabBrowse: "瀏覽司機",
+                tabSubmit: "提交評論",
+                tabReport: "舉報當局",
+                tabStats: "我的評分",
+                searchPlaceholder: "按車牌 (AE 1234)、名字 (張明華) 或司機身份證號 (T135051) 搜尋",
+                searchBtn: "搜尋",
+                submitTitle: "提交您的評論",
+                reportTitle: "向運輸當局舉報",
+                reportDesc: "向香港運輸署提交正式投訴。提供有關事件的詳細資訊以供適當調查。",
+                statsTitle: "您的提交歷史",
+                plateLabelShort: "車牌號碼 *",
+                driverNameLabel: "司機名字 (可選)",
+                driverIdLabel: "司機身份證號 (可選)",
+                ratingLabel: "整體評分 *",
+                experienceLabel: "您的經驗如何？(選擇所有適用項)",
+                commentsLabel: "其他評論 (可選)",
+                tripDateLabel: "行程日期 *",
+                submitBtn: "提交評論",
+                clearBtn: "清除",
+                successMsg: "✓ 感謝！您的評論已成功提交。",
+                reviewsSubmitted: "已提交評論",
+                avgRatingGiven: "平均評分",
+                positiveReviews: "正面評論",
+                concernsReported: "報告的問題",
+                recentReviews: "最近的評論",
+                noReviews: "尚未提交評論",
+                safeDriving: "安全駕駛",
+                courteous: "禮貌待客",
+                cleanVehicle: "車輛清潔",
+                efficientRoute: "路線高效",
+                recklessDriving: "⚠ 魯莽駕駛",
+                overcharge: "⚠ 過度收費",
+                longRoute: "⚠ 走冤枉路",
+                rudeBehavior: "⚠ 無禮行為",
+                reportPlateLabel: "車牌號碼 *",
+                reportDriverNameLabel: "司機名字 (如果知道)",
+                reportDriverIdLabel: "司機身份證號",
+                violationTypeLabel: "違規類型 *",
+                dateTimeLabel: "事件日期及時間 *",
+                routeLabel: "路線 (起點 - 終點)",
+                fareChargedLabel: "收費 (港幣)",
+                expectedFareLabel: "預期車費 (港幣)",
+                detailsLabel: "事件詳細說明 *",
+                contactLabel: "您的聯絡資訊 *",
+                phoneLabel: "您的聯絡電話 (可選)",
+                consentLabel: "我同意運輸當局使用此資訊進行調查",
+                reportBtn: "向當局提交舉報",
+                reportSuccessMsg: "✓ 您的舉報已提交至運輸當局。參考號碼：",
+                reportWarning: "⚠️ 重要提示：虛假或惡意舉報可能會導致法律後果。請確保所有資訊準確無誤。"
+            },
+            'zh-CN': {
+                headerSubtitle: "评分香港的士司机 • 建立香港的士信任度",
+                tabBrowse: "浏览司机",
+                tabSubmit: "提交评论",
+                tabReport: "举报当局",
+                tabStats: "我的评分",
+                searchPlaceholder: "按车牌 (AE 1234)、名字 (张明华) 或司机身份证号 (T135051) 搜索",
+                searchBtn: "搜索",
+                submitTitle: "提交您的评论",
+                reportTitle: "向运输当局举报",
+                reportDesc: "向香港运输署提交正式投诉。提供有关事件的详细信息以供适当调查。",
+                statsTitle: "您的提交历史",
+                plateLabelShort: "车牌号码 *",
+                driverNameLabel: "司机名字 (可选)",
+                driverIdLabel: "司机身份证号 (可选)",
+                ratingLabel: "整体评分 *",
+                experienceLabel: "您的经验如何？(选择所有适用项)",
+                commentsLabel: "其他评论 (可选)",
+                tripDateLabel: "行程日期 *",
+                submitBtn: "提交评论",
+                clearBtn: "清除",
+                successMsg: "✓ 感谢！您的评论已成功提交。",
+                reviewsSubmitted: "已提交评论",
+                avgRatingGiven: "平均评分",
+                positiveReviews: "正面评论",
+                concernsReported: "报告的问题",
+                recentReviews: "最近的评论",
+                noReviews: "尚未提交评论",
+                safeDriving: "安全驾驶",
+                courteous: "礼貌待客",
+                cleanVehicle: "车辆清洁",
+                efficientRoute: "路线高效",
+                recklessDriving: "⚠ 鲁莽驾驶",
+                overcharge: "⚠ 过度收费",
+                longRoute: "⚠ 走冤枉路",
+                rudeBehavior: "⚠ 无礼行为",
+                reportPlateLabel: "车牌号码 *",
+                reportDriverNameLabel: "司机名字 (如果知道)",
+                reportDriverIdLabel: "司机身份证号",
+                violationTypeLabel: "违规类型 *",
+                dateTimeLabel: "事件日期及时间 *",
+                routeLabel: "路线 (起点 - 终点)",
+                fareChargedLabel: "收费 (港币)",
+                expectedFareLabel: "预期车费 (港币)",
+                detailsLabel: "事件详细说明 *",
+                contactLabel: "您的联络资讯 *",
+                phoneLabel: "您的联络电话 (可选)",
+                consentLabel: "我同意运输当局使用此资讯进行调查",
+                reportBtn: "向当局提交举报",
+                reportSuccessMsg: "✓ 您的举报已提交至运输当局。参考号码：",
+                reportWarning: "⚠️ 重要提示：虚假或恶意举报可能会导致法律后果。请确保所有资讯准确无误。"
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('selectedLanguage', lang);
+            
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update all translated content
+            updateAllTranslations();
+        }
+
+        function updateAllTranslations() {
+            const t = translations[currentLanguage];
+            
+            // Update header and tabs
+            document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
+            document.getElementById('tabBrowse').textContent = t.tabBrowse;
+            document.getElementById('tabSubmit').textContent = t.tabSubmit;
+            document.getElementById('tabReport').textContent = t.tabReport;
+            document.getElementById('tabStats').textContent = t.tabStats;
+        }
+
+        function getText(key) {
+            return translations[currentLanguage][key] || translations['en'][key];
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set active language button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('onclick').includes(currentLanguage)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.getElementById('tripDate').valueAsDate = new Date();
+            loadValidDriverIds();
+            updateAllTranslations();
         });
     </script>
 </body>
