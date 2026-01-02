@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTaxi - Hong Kong Taxi Driver Reviews</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"></script>
+    <style>
+        :root {
+            --color-primary: #208091;
+            --color-primary-hover: #1a6574;
+            --color-primary-active: #144d5a;
+            --color-success: #2db870;
+            --color-error: #c0152f;
+            --color-warning: #a84b2f;
+            --color-text: #134252;
+            --color-text-secondary: #626c7c;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e8e8e8;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+            color: white;
+            padding: var(--spacing-lg);
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        .tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .tab {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab:hover {
+            color: var(--color-text);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-bar {
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 14px;
+        }
+
+        .search-bar button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .driver-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 0.3s;
+        }
+
+        .driver-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .driver-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .driver-info {
+            flex: 1;
+        }
+
+        .driver-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .driver-plate {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-family: monospace;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .stars {
+            font-size: 20px;
+            color: #ffc107;
+        }
+
+        .rating-number {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--color-text);
+        }
+
+        .review-form {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: var(--spacing-xs);
+            font-size: 24px;
+        }
+
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+        .star.active,
+        .star:hover {
+            color: #ffc107;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .checkbox-item input {
+            width: auto;
+        }
+
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .review-item {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .review-rating {
+            font-size: 16px;
+            color: #ffc107;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .review-text {
+            font-size: 14px;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .review-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--color-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-md);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--color-text-secondary);
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #c0152f;
+            color: #c0152f;
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: var(--spacing-md);
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .driver-header {
+                flex-direction: column;
+            }
+
+            .rating-display {
+                margin-top: var(--spacing-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚕 OpenTaxi</h1>
+        <p>Rate Hong Kong taxi drivers • Build trust in HK taxis</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('browse')">Browse Drivers</button>
+            <button class="tab" onclick="switchTab('submit')">Submit Review</button>
+            <button class="tab" onclick="switchTab('stats')">My Ratings</button>
+        </div>
+
+        <!-- Browse Tab -->
+        <div id="browse" class="tab-content active">
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search by driver name or license plate (e.g., AE 1234 or 張明華)"
+                >
+                <button onclick="searchDrivers()">Search</button>
+            </div>
+
+            <div id="driversList"></div>
+        </div>
+
+        <!-- Submit Review Tab -->
+        <div id="submit" class="tab-content">
+            <div class="review-form">
+                <h2 style="margin-bottom: var(--spacing-lg); font-size: 20px;">Submit Your Review</h2>
+
+                <div class="success-message" id="successMsg">✓ Thank you! Your review has been submitted successfully.</div>
+                <div class="error-message" id="errorMsg"></div>
+
+                <div class="form-group">
+                    <label>License Plate Number *</label>
+                    <input 
+                        type="text" 
+                        id="plateLicense" 
+                        placeholder="e.g., AE 1234 or 粵港澳牌"
+                        required
+                    >
+                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                        Found on driver identity plate or taxi registration
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Driver Name (optional)</label>
+                    <input 
+                        type="text" 
+                        id="driverName" 
+                        placeholder="e.g., 張明華 or Wong Ming"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Overall Rating *</label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" onclick="setRating(1)">★</span>
+                        <span class="star" onclick="setRating(2)">★</span>
+                        <span class="star" onclick="setRating(3)">★</span>
+                        <span class="star" onclick="setRating(4)">★</span>
+                        <span class="star" onclick="setRating(5)">★</span>
+                    </div>
+                    <small id="ratingText" style="color: var(--color-text-secondary); font-size: 12px;"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>What was your experience? (Select all that apply)</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="safe" value="Safe driving">
+                            <label for="safe" style="margin: 0;">Safe driving</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="courteous" value="Courteous">
+                            <label for="courteous" style="margin: 0;">Courteous</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="clean" value="Clean vehicle">
+                            <label for="clean" style="margin: 0;">Clean vehicle</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="efficient" value="Efficient route">
+                            <label for="efficient" style="margin: 0;">Efficient route</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="reckless" value="Reckless driving">
+                            <label for="reckless" style="margin: 0;">⚠ Reckless driving</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="overcharge" value="Overcharge suspicion">
+                            <label for="overcharge" style="margin: 0;">⚠ Overcharge</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="longRoute" value="Took long route">
+                            <label for="longRoute" style="margin: 0;">⚠ Long route</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="rude" value="Rude behavior">
+                            <label for="rude" style="margin: 0;">⚠ Rude behavior</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Comments (optional)</label>
+                    <textarea 
+                        id="comments" 
+                        placeholder="Share more details about your experience... (e.g., specific incident, time, route)"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Trip *</label>
+                    <input type="date" id="tripDate" required>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats" class="tab-content">
+            <h2 style="margin-bottom: var(--spacing-lg); font-size: 20px;">Your Submission History</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalReviews">0</div>
+                    <div class="stat-label">Reviews Submitted</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgRating">0.0</div>
+                    <div class="stat-label">Average Rating Given</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="positiveCt">0</div>
+                    <div class="stat-label">Positive Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="concernCt">0</div>
+                    <div class="stat-label">Concerns Reported</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: var(--spacing-md); font-size: 16px;">Recent Reviews</h3>
+            <div id="reviewsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG4QsO2FYwJuW-HjXXXXXXXXXXXXXXX",
+            authDomain: "opentaxi-d7f0f.firebaseapp.com",
+            databaseURL: "https://opentaxi-d7f0f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "opentaxi-d7f0f",
+            storageBucket: "opentaxi-d7f0f.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdefg1234567890"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let allReviews = [];
+        let drivers = {};
+        let userReviews = [];
+        let currentRating = 0;
+        let filteredDrivers = [];
+
+        // Load reviews from Firebase on page load
+        window.addEventListener('load', () => {
+            loadReviewsFromFirebase();
+        });
+
+        function loadReviewsFromFirebase() {
+            database.ref('reviews').on('value', snapshot => {
+                allReviews = [];
+                drivers = {};
+                
+                snapshot.forEach(childSnapshot => {
+                    const review = childSnapshot.val();
+                    review.id = childSnapshot.key;
+                    allReviews.push(review);
+
+                    // Group reviews by license plate
+                    if (!drivers[review.plate]) {
+                        drivers[review.plate] = {
+                            plate: review.plate,
+                            name: review.driverName || 'Unknown Driver',
+                            reviews_data: [],
+                            ratings: []
+                        };
+                    }
+
+                    drivers[review.plate].reviews_data.push({
+                        rating: review.rating,
+                        text: review.comments || 'No comments',
+                        tags: review.tags || []
+                    });
+                    drivers[review.plate].ratings.push(review.rating);
+                });
+
+                // Calculate average ratings
+                Object.keys(drivers).forEach(plate => {
+                    const ratings = drivers[plate].ratings;
+                    drivers[plate].rating = ratings.length > 0 
+                        ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(1)
+                        : 0;
+                    drivers[plate].reviews = ratings.length;
+                });
+
+                filteredDrivers = Object.values(drivers);
+                displayDrivers(filteredDrivers);
+                loadUserReviews();
+            });
+        }
+
+        function loadUserReviews() {
+            const stored = localStorage.getItem('userReviewIds') || '[]';
+            const ids = JSON.parse(stored);
+            userReviews = allReviews.filter(r => ids.includes(r.id));
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'stats') {
+                updateStats();
+            }
+        }
+
+        function displayDrivers(driverList) {
+            const container = document.getElementById('driversList');
+            
+            if (driverList.length === 0) {
+                container.innerHTML = '<div class="empty-state">No drivers found. Be the first to submit a review!</div>';
+                return;
+            }
+
+            container.innerHTML = driverList.map(driver => `
+                <div class="driver-card">
+                    <div class="driver-header">
+                        <div class="driver-info">
+                            <div class="driver-name">${driver.name}</div>
+                            <div class="driver-plate">License: ${driver.plate}</div>
+                            <div style="font-size: 12px; color: var(--color-text-secondary);">
+                                ${driver.reviews} reviews
+                            </div>
+                        </div>
+                        <div class="rating-display">
+                            <div class="stars">${'★'.repeat(Math.floor(driver.rating))}${'☆'.repeat(5 - Math.floor(driver.rating))}</div>
+                            <div class="rating-number">${driver.rating}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                        <strong style="font-size: 13px;">Recent Reviews:</strong>
+                        ${driver.reviews_data.slice(0, 2).map(review => `
+                            <div class="review-item" style="margin-top: var(--spacing-sm);">
+                                <div class="review-header">
+                                    <span class="review-rating">${'★'.repeat(review.rating)}</span>
+                                </div>
+                                <div class="review-text">"${review.text}"</div>
+                                <div class="review-tags">
+                                    ${review.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchDrivers() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = filteredDrivers.filter(d => 
+                d.name.toLowerCase().includes(query) || 
+                d.plate.toLowerCase().includes(query)
+            );
+            displayDrivers(filtered);
+        }
+
+        function setRating(stars) {
+            currentRating = stars;
+            document.querySelectorAll('.star').forEach((star, index) => {
+                if (index < stars) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            const messages = [
+                '1 star: Poor experience',
+                '2 stars: Below average',
+                '3 stars: Average',
+                '4 stars: Good experience',
+                '5 stars: Excellent'
+            ];
+            document.getElementById('ratingText').textContent = messages[stars - 1];
+        }
+
+        function submitReview() {
+            const plate = document.getElementById('plateLicense').value.trim().toUpperCase();
+            const driverName = document.getElementById('driverName').value.trim();
+            const tripDate = document.getElementById('tripDate').value;
+            const comments = document.getElementById('comments').value.trim();
+            const tags = Array.from(document.querySelectorAll('.checkbox-group input:checked'))
+                .map(cb => cb.value);
+
+            // Validation
+            if (!plate) {
+                showError('Please enter the license plate number');
+                return;
+            }
+
+            if (!currentRating) {
+                showError('Please select a rating');
+                return;
+            }
+
+            if (!tripDate) {
+                showError('Please select the trip date');
+                return;
+            }
+
+            // Save to Firebase
+            const review = {
+                plate: plate,
+                driverName: driverName || 'Anonymous',
+                rating: currentRating,
+                tags: tags,
+                comments: comments,
+                tripDate: tripDate,
+                submittedAt: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+
+            database.ref('reviews').push(review, error => {
+                if (error) {
+                    showError('Error submitting review: ' + error.message);
+                } else {
+                    // Show success
+                    const msg = document.getElementById('successMsg');
+                    msg.classList.add('show');
+                    setTimeout(() => msg.classList.remove('show'), 4000);
+
+                    // Track for user stats
+                    const ids = JSON.parse(localStorage.getItem('userReviewIds') || '[]');
+                    ids.push(review.timestamp.toString());
+                    localStorage.setItem('userReviewIds', JSON.stringify(ids));
+
+                    // Reset form
+                    resetForm();
+                }
+            });
+        }
+
+        function showError(message) {
+            const msg = document.getElementById('errorMsg');
+            msg.textContent = message;
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 5000);
+        }
+
+        function resetForm() {
+            document.getElementById('plateLicense').value = '';
+            document.getElementById('driverName').value = '';
+            document.getElementById('comments').value = '';
+            document.getElementById('tripDate').value = '';
+            currentRating = 0;
+            document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+            document.querySelectorAll('.checkbox-group input').forEach(cb => cb.checked = false);
+            document.getElementById('ratingText').textContent = '';
+        }
+
+        function updateStats() {
+            const total = userReviews.length;
+            const avgRating = total > 0 
+                ? (userReviews.reduce((sum, r) => sum + r.rating, 0) / total).toFixed(1)
+                : 0;
+            const positive = userReviews.filter(r => r.rating >= 4).length;
+            const concerns = userReviews.filter(r => 
+                r.tags && r.tags.some(t => ['Reckless driving', 'Overcharge suspicion', 'Took long route', 'Rude behavior'].includes(t))
+            ).length;
+
+            document.getElementById('totalReviews').textContent = total;
+            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('positiveCt').textContent = positive;
+            document.getElementById('concernCt').textContent = concerns;
+
+            const reviewsList = document.getElementById('reviewsList');
+            if (userReviews.length === 0) {
+                reviewsList.innerHTML = '<div class="empty-state">No reviews submitted yet</div>';
+            } else {
+                reviewsList.innerHTML = userReviews.slice().reverse().map(review => `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-rating">${'★'.repeat(review.rating)}</span>
+                            <span class="review-date">${new Date(review.tripDate).toLocaleDateString()}</span>
+                        </div>
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">
+                            ${review.plate}${review.driverName !== 'Anonymous' ? ` - ${review.driverName}` : ''}
+                        </div>
+                        ${review.comments ? `<div class="review-text">"${review.comments}"</div>` : ''}
+                        <div class="review-tags">
+                            ${(review.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Set today's date by default
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('tripDate').valueAsDate = new Date();
+        });
+    </script>
+</body>
+</html>
